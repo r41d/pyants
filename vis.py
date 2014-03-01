@@ -8,8 +8,6 @@ import pygame
 from client import AntClient
 from objects import World, Team, Entity, enum
 
-if __name__ != '__main__':
-	exit(1)
 
 class Vis(object):
 	size = width, height = 1000 + 380, 1000
@@ -44,7 +42,7 @@ class Vis(object):
 			pygame.draw.line(disp, color, (x - leng, y - leng), (x + leng, y + leng))
 			pygame.draw.line(disp, color, (x - leng, y + leng), (x + leng, y - leng))
 
-	def __init__(self):
+	def __init__(self, client):
 		if len(sys.argv) < 2:
 			print 'Usage: ' + sys.argv[0] + ' host'
 			exit(1)
@@ -61,47 +59,51 @@ class Vis(object):
 
 		self.TIMER = pygame.time.Clock()
 
-		self.client = AntClient(sys.argv[1], False, '') ## here happens the network stuff in the AntClient ctor
+		self.client = client
 
-	def run(self):
-		while True:
-			self.client.update_world()
-			world = self.client.world
+	def update(self):
+		#self.client.update_world() ### now done outside
+		world = self.client.world
 
-			e = pygame.event.poll()
-			if pygame.event.peek(pygame.QUIT):
-				sys.exit()
-			pygame.event.clear()
+		e = pygame.event.poll()
+		if pygame.event.peek(pygame.QUIT):
+			sys.exit()
+		pygame.event.clear()
 
-			self.DISPLAY.fill(Vis.Colors.black)
-			self.DISPLAY.blit(self.HomeBaseSurface, (0,0))
+		self.DISPLAY.fill(Vis.Colors.black)
+		self.DISPLAY.blit(self.HomeBaseSurface, (0,0))
 
-			for e in world.entities:
-				#if e.isant:
-				#	ANT.rect.center = (e.x, e.y)
-				#	grp.draw(DISPLAY)
-				#else:
-				if e.isant and not e.issugar:
-					self.draw_cross(self.DISPLAY, e.x, e.y, Vis.teamColors[e.tid], False, 5)
-				elif not e.isant and e.issugar:
-					#draw_cross(DISPLAY, e.x, e.y, white, True, 2)
-					self.DISPLAY.set_at((e.x, e.y), Vis.Colors.white)
-				elif e.isant and e.issugar:
-					self.draw_cross(self.DISPLAY, e.x, e.y, Vis.teamColors[e.tid], True, 4)
-				else:
-					#print 'object is neither ant nor sugar!!!'
-					pass
-				#DISPLAY.set_at((e.x, e.y), color)
+		for e in world.entities:
+			#if e.isant:
+			#	ANT.rect.center = (e.x, e.y)
+			#	grp.draw(DISPLAY)
+			#else:
+			if e.isant and not e.issugar:
+				self.draw_cross(self.DISPLAY, e.x, e.y, Vis.teamColors[e.tid], False, 5)
+			elif not e.isant and e.issugar:
+				#draw_cross(DISPLAY, e.x, e.y, white, True, 2)
+				self.DISPLAY.set_at((e.x, e.y), Vis.Colors.white)
+			elif e.isant and e.issugar:
+				self.draw_cross(self.DISPLAY, e.x, e.y, Vis.teamColors[e.tid], True, 4)
+			else:
+				#print 'object is neither ant nor sugar!!!'
+				pass
+			#DISPLAY.set_at((e.x, e.y), color)
 
-			self.draw_text(self.DISPLAY, 'ID Score Name', self.font, (1020, 50), Vis.Colors.white)
-			for t in world.teams:
-				#print t.id, t.name
-				self.draw_text(self.DISPLAY,
-				          filter(lambda c: c in string.printable, str('{:>2} {:>5} {}'.format(t.id, t.sugar, t.name))),
-				          self.font, (1020, 80 + t.id * 20), Vis.teamColors[t.id])
+		self.draw_text(self.DISPLAY, 'ID Score Name', self.font, (1020, 50), Vis.Colors.white)
+		for t in world.teams:
+			#print t.id, t.name
+			self.draw_text(self.DISPLAY,
+			          filter(lambda c: c in string.printable, str('{:>2} {:>5} {}'.format(t.id, t.sugar, t.name))),
+			          self.font, (1020, 80 + t.id * 20), Vis.teamColors[t.id])
 
-			self.TIMER.tick(self.FPS)
-			pygame.display.update()
+		self.TIMER.tick(self.FPS)
+		pygame.display.update()
 
-vis = Vis()
-vis.run()
+
+if __name__ == '__main__':
+	client = AntClient(sys.argv[1], False, 'spectator^^')  ## here happens the network stuff in the AntClient ctor
+	vis = Vis(client)
+	while True:
+		client.update_world()
+		vis.update()
