@@ -2,23 +2,34 @@
 # -*- coding: utf-8 *-*
 
 import struct
+from pygame import Rect
 
 ANT_HEALTH = 10
 SUGAR_HEAL = 5
 INITIAL_ANTS_PER_TEAM = 10
+
+
 
 class World(object):
 
 	__instance = None ## singleton
 	nextid = 0
 
+	BASEDIST = 200
+	BASESIZE = 20
+	BORDER = 90
 	WORLD_SIZE = 1000
 
-	## AH, FUCK, bases are numerated clockwise, fix that later
-	HOMEBASES = list(map(lambda (x,y): (x,y,x+20,y+20),
-	                [(x, 90) for x in range(90, 891, 200)]
-					+ [(x,y) for x in [90,890] for y in [290,490,690]]
-					+ [(x,890) for x in range(90,891,200)]))
+	## bases are numerated clockwise where topleft = 0
+	HOMEBASES = map(lambda (x,y): Rect(x, y, x + 20, y + 20),
+	                [(i * 200 + 90, 90) for i in range(5)]
+					+ [(890, 200 * i + 290) for i in range(4)]
+					+ [(690 - 200 * i, 890) for i in range(4)]
+					+ [(90, 690 - i * 200) for i in range(3)]
+				)
+
+	def is_in_base(self, x, y):
+		pass
 
 	def __new__(cls, *args, **kwargs):
 		if not cls.__instance:
@@ -33,16 +44,20 @@ class World(object):
 		self.entities = []
 
 	def get_ants(self):
-		return list(filter(lambda e: isant, self.entities))
+		return filter(lambda e: e.isant, self.entities)
 
 	def get_sugars(self):
-		return list(filter(lambda e: e.issugar and not e.isant, self.entities))
+		return filter(lambda e: e.issugar and not e.isant, self.entities)
 
 	def get_ants_for_team(self, teamid):
-		return list(filter(lambda e: e.isant and e.tid == teamid, self.entities))
+		return filter(lambda e: e.isant and e.tid == teamid, self.entities)
+
+	def get_team_ant(self, teamid, antid):
+		return filter(lambda e: e.isant and e.tid == teamid and e.antid == antid, self.entities)
+
 
 	def search_pos(self, x, y):
-		return list(filter(lambda e: e.x==x and e.y==y, self.entities))
+		return filter(lambda e: e.x == x and e.y == y, self.entities)
 
 	'''
 	Format of the 'hello' packet:
@@ -51,7 +66,7 @@ class World(object):
 	2        16 chars  team name (if team client, else ignored)
 	'''
 	def login(self, loginstr):
-		isplayer, teamname = struct.unpack('<Hs', loginstr)
+		isplayer, teamname = struct.unpack('<H16s', loginstr)
 		if bool(isplayer):
 			newteam = Team(World.nextid, teamname)
 			self.teams += newteam
@@ -66,15 +81,14 @@ class World(object):
 		newant.antid = team.nextantid()
 		newant.anthealth = ANT_HEALTH
 
-		ant.world = self
-		self.ants += ant
+		newant.world = self
+		self.ants.append(newant)
 
 	def place_sugar(self, random=True, x=-1, y=-1):
-		if random or x not in range(0,WORLD_SIZE) or y not in range(0,WORLD_SIZE):
-			x = random.randint(0, WORLD_SIZE)
-			y = random.randint(0, WORLD_SIZE)
+		if random or x not in range(0, World.WORLD_SIZE) or y not in range(0, World.WORLD_SIZE):
+			x = random.randint(0, World.WORLD_SIZE)
+			y = random.randint(0, World.WORLD_SIZE)
 		self.sugars[x][y] += 1
-
 
 
 
@@ -113,6 +127,7 @@ class Team(object):
 			yield n
 
 
+
 '''
 Each Object (6 bytes) is coded as follows:
 Offset   Type    Description
@@ -131,7 +146,7 @@ class Entity(object):
 		self.isant = self.issugar = False
 		self.tid = self.antid = self.anthealth = -1
 
-	def unpack(self, objstr):
+	def unpack(self, objstr): ## client & visu
 		objinfo, antinfo, self.x, self.y = struct.unpack(Entity.FMT_STR, objstr)
 		entitytype = objinfo >> 4
 		self.isant = bool(entitytype % 2)
@@ -140,14 +155,16 @@ class Entity(object):
 		self.antid = antinfo >> 4 if self.isant else -1
 		self.anthealth = antinfo % (2 ** 4) if self.isant else -1
 
-	def pack(self):
+	def pack(self): ## would be user by server
 		return struct.pack(Entity.FMT_STR,
 		                   int(self.isant) + int(self.issugar<<1) << 4 + self.tid,
 		                   self.antid << 4 + self.anthealth,
 		                   self.x, self.y)
 
+	def __str__(self):
+		return str(self.x)+'x'+str(self.y)+' '+str(self.tid)+' '+str(self.antid)
 
-class Ant(Entity):
+
 	'''
 		methods only to be used from the client
 	'''
@@ -160,7 +177,8 @@ class Ant(Entity):
 	def move2focus(self):
 		if dist_steps((self.x,self.y), self.focus) < 1:
 			return
-		self.dir = which_way(self.x, self.y, self.focus[0], self.focus[1])
+		self.dir = which_way((self.x, self.y), self.focus)
+
 
 
 def enum(**enums):
@@ -196,7 +214,7 @@ def dist_steps((x1,y1), (x2,y2)):
 		steps += 1
 	return steps
 
-def which_way(x, y, goalX, goalY):
+def which_way((x, y), (goalX, goalY)):
 	if x < goalX and y < goalY: return Direction.SE
 	if x < goalX and y > goalY: return Direction.NE
 	if x > goalX and y < goalY: return Direction.SW

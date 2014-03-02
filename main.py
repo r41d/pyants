@@ -12,13 +12,17 @@ def main():
 	if len(sys.argv) < 2:
 		sys.exit(1)
 
-	client = AntClient(sys.argv[1], False, 'spectator^^')  ## here happens the network stuff in the AntClient ctor
+	client = AntClient(sys.argv[1], True)  ## here happens the network stuff in the AntClient ctor
 
 	vis = Vis(client)
 
+	client.update_world()
+	client.futtersuche_focus()
 
 	while True:
 		client.update_world()
+		client.futtersuche_go()
+		client.send_actions()
 		vis.update()
 
 

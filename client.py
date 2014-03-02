@@ -40,7 +40,7 @@ class AntClient:
 		parse turn packet
 		'''
 		self.tID = struct.unpack('<H', myrecv(self.socket, 2))
-		#print 'received tid %s' % mytid
+		print 'received tid %s' % self.tID
 
 		self.world.teams = []
 		print 'scores: ',
@@ -50,11 +50,11 @@ class AntClient:
 			print str(newteam.sugar)+' ',
 			self.world.teams.append(newteam)
 
-		num_of_objects = struct.unpack('<H', myrecv(self.socket, 2))
+		num_of_objects, = struct.unpack('<H', myrecv(self.socket, 2))
 		print 'objects:%s' % num_of_objects,
 
 		self.world.entities = []
-		for _ in range(num_of_objects[0]):
+		for _ in range(num_of_objects):
 			newobj = Entity(self.world)
 			newobj.unpack(myrecv(self.socket, 6)) ## deserialize object
 			self.world.entities.append(newobj)
@@ -78,22 +78,38 @@ class AntClient:
 
 		return minSugar
 
-	def futtersuche(self):
-		my_ants = world.get_ants_for_team(self.tID)
+	def futtersuche_focus(self):
+		for a in self.world.get_ants_for_team(self.tID):
+			s = self.find_nearest_sugar(a)
+			a.set_focus(s.x, s.y)
 
-		map(self.find_nearest_sugar, my_ants)
+
+	def futtersuche_go(self):
+		for a in self.world.get_ants_for_team(self.tID):
+			a.move2focus()
 
 
 	def send_actions(self):
-			'''
-			The 'action' message:
-			Offset   Type      Description
-			0        u8        action for ant 0: id of field to move to: 123
-			                                                             456
-			...                                                          789
-			15       u8        action for ant 15
-			'''
-			pass
+		'''
+		The 'action' message:
+		Offset   Type      Description
+		0        u8        action for ant 0: id of field to move to: 123
+		                                                             456
+		...                                                          789
+		15       u8        action for ant 15
+		'''
+		my_ants = self.world.get_ants_for_team(self.tID)
+
+		for i in range(16):
+			search = self.world.get_team_ant(self.tID, i)
+			if len(search) > 0:
+				dir = search[0].dir
+			else:
+				dir = Direction.NONE
+			msg = struct.pack('<B', dir)
+			print('sending dir %s' % str(msg))
+			self.socket.send(msg)
+
 
 if __name__ == '__main__':
 	client()

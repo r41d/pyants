@@ -53,8 +53,8 @@ class Vis(object):
 		pygame.display.set_caption('Ant!')
 		self.DISPLAY = pygame.display.set_mode(self.size)
 		self.HomeBaseSurface = pygame.Surface((1001,1000))
-		for (c, (x, y, _, _)) in zip(xrange(16), World.HOMEBASES):
-			pygame.draw.rect(self.HomeBaseSurface, self.teamColors[c], (x, y, 20, 20))
+		for (c, b) in zip(xrange(16), World.HOMEBASES):
+			pygame.draw.rect(self.HomeBaseSurface, self.teamColors[c], (b.x, b.y, 20, 20))
 		pygame.draw.line(self.HomeBaseSurface, self.Colors.white, (1000, 0), (1000, 999))
 
 		self.TIMER = pygame.time.Clock()
@@ -90,11 +90,11 @@ class Vis(object):
 				pass
 			#DISPLAY.set_at((e.x, e.y), color)
 
-		self.draw_text(self.DISPLAY, 'ID Score Name', self.font, (1020, 50), Vis.Colors.white)
+		self.draw_text(self.DISPLAY, 'ID Ants Score Name', self.font, (1020, 50), Vis.Colors.white)
 		for t in world.teams:
 			#print t.id, t.name
 			self.draw_text(self.DISPLAY,
-			          filter(lambda c: c in string.printable, str('{:>2} {:>5} {}'.format(t.id, t.sugar, t.name))),
+			          filter(lambda c: c in string.printable, str('{:>2}   {:>2} {:>5} {}'.format(t.id, t.ants, t.sugar, t.name))),
 			          self.font, (1020, 80 + t.id * 20), Vis.teamColors[t.id])
 
 		self.TIMER.tick(self.FPS)
