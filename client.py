@@ -82,7 +82,6 @@ class AntClient:
 		acts = []
 		for i in range(16):
 			search = self.world.get_team_ant(self.tID, i)
-			print 'len search =', len(search)
 			if search:
 				dir = search[0].dir
 			else:

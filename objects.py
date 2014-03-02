@@ -167,15 +167,9 @@ class Entity(object):
 
 	### methods only to be used from the client
 
-	def set_focus(self, foc): # only use from client
+	def move2focus(self, foc): # only use from client
 		''' specify a position and we will try to get there '''
-		print 'setting focus to', foc
 		self.focus = foc
-		print 'set focus to', self.focus
-		#self.dir = Direction.NONE
-
-	def dir2focus(self): # only use from client
-		print 'i am', str(self), 'and my focus is', self.focus
 		self.dir = which_way((self.x, self.y), self.focus)
 
 	def __str__(self):

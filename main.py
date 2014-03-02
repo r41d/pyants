@@ -10,7 +10,6 @@ def get_my_ants(client):
 
 def find_nearest_sugar(client, ant):
 	sugars = client.world.get_sugars()
-	print 'found', len(sugars), 'sugars'
 	minSugar, minSteps  = None, 1000
 
 	for s in sugars:
@@ -26,9 +25,7 @@ def futtersuche_focus(client):
 	print 'client ID {} has {} ants'.format(client.tID, len(myants))
 	for a in myants:
 		s = find_nearest_sugar(client, a)
-		a.set_focus((s.x,s.y))
-		a.dir2focus()
-
+		a.move2focus((s.x,s.y))
 
 def main():
 
