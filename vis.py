@@ -4,22 +4,23 @@
 import sys
 import random
 import string
+from enum import Enum
 import pygame
 from client import AntClient
-from objects import World, Team, Entity, enum
+from objects import World, Team, Entity
 
 
 class Vis(object):
 	size = width, height = 1000 + 380, 1000
 	FPS = 60
 
-	Colors = enum(black=(  0, 0, 0),
-	              white=(255, 255, 255),
-	              grey=(127, 127, 127),
-	              red=(255, 0, 0),
-	              green=(  0, 255, 0),
-	              blue=(  0, 0, 255)
-	)
+	class Colors(Enum):
+		black = (  0,   0,   0)
+		white = (255, 255, 255)
+		grey  = (127, 127, 127)
+		red   = (255,   0,   0)
+		green = (  0, 255,   0)
+		blue  = (  0,   0, 255)
 
 	teamColors = [(0, 110, 110), (240, 0, 0), (0, 240, 0), (160, 0, 80),
 	              (200, 40, 0), (0, 200, 40), (40, 0, 200), (160, 80, 0),

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 *-*
 
 import struct
+from enum import Enum
 from pygame import Rect
 
 ANT_HEALTH = 10
@@ -180,20 +181,16 @@ class Entity(object):
 			return 'S[{}×{}]'.format(self.x, self.y)
 
 
-def enum(**enums):
-    return type('Enum', (), enums)
-
-Direction = enum(
-	NONE = 5,
-	NW = 1,
-	N = 2,
-	NE = 3,
-	E = 6,
-	SE = 9,
-	S = 8,
-	SW = 7,
+class Direction(Enum):
+	NONE = 5
+	NW = 1
+	N = 2
+	NE = 3
+	E = 6
+	SE = 9
+	S = 8
+	SW = 7
 	W = 4
-)
 
 
 def dist_steps((x1,y1), (x2,y2)):
