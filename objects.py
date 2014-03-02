@@ -9,10 +9,9 @@ SUGAR_HEAL = 5
 INITIAL_ANTS_PER_TEAM = 10
 
 
-
 class World(object):
 
-	__instance = None ## singleton
+	__instance = None  # singleton
 	nextid = 0
 
 	BASEDIST = 200
@@ -21,24 +20,28 @@ class World(object):
 	WORLD_SIZE = 1000
 
 	## bases are numerated clockwise where topleft = 0
-	HOMEBASES = map(lambda (x,y): Rect(x, y, x + 20, y + 20),
+	HOMEBASES = map(lambda (x, y): Rect(x, y, x + 20, y + 20),
 	                [(i * 200 + 90, 90) for i in range(5)]
 					+ [(890, 200 * i + 290) for i in range(4)]
 					+ [(690 - 200 * i, 890) for i in range(4)]
 					+ [(90, 690 - i * 200) for i in range(3)]
 				)
 
-	def is_in_base(self, x, y):
-		pass
+	@staticmethod
+	def is_base(x, y):
+		for (c, base) in zip(range(len(World.HOMEBASES)), World.HOMEBASES):
+			if base.collidepoint(x, y):
+				return c
+		return -1
 
-	def __new__(cls, *args, **kwargs):
+	def __new__(cls, *args, **kwargs): ## singleton
 		if not cls.__instance:
 			cls.__instance = super(World, cls).__new__(cls, *args, **kwargs)
 		return cls.__instance
 
 	def __init__(self):
 		self.teams = []
-		self.listener = []
+		#self.listener = []
 		#self.ants = []
 		#self.sugars = [[0 for _ in xrange(WORLD_SIZE)] for _ in xrange(WORLD_SIZE)]
 		self.entities = []
@@ -59,13 +62,11 @@ class World(object):
 	def search_pos(self, x, y):
 		return filter(lambda e: e.x == x and e.y == y, self.entities)
 
-	'''
-	Format of the 'hello' packet:
-	Offset   Type      Description
-	0        u16       client type (0=non-team, 1=team)
-	2        16 chars  team name (if team client, else ignored)
-	'''
 	def login(self, loginstr):
+		""" Format of the 'hello' packet:
+		Offset   Type      Description
+		0        u16       client type (0=non-team, 1=team)
+		2        16 chars  team name (if team client, else ignored) """
 		isplayer, teamname = struct.unpack('<H16s', loginstr)
 		if bool(isplayer):
 			newteam = Team(World.nextid, teamname)
@@ -126,17 +127,18 @@ class Team(object):
 			n+=1
 			yield n
 
+	def __str__(self):
+		return 'T[{},{}A,{}S,{}]'.format(self.__id, self.ants, self.sugar, self.name)
 
 
-'''
-Each Object (6 bytes) is coded as follows:
-Offset   Type    Description
-0        u8      upper nibble: object type (0=empty, 1=ant, 2=sugar, 3=ant+sugar), lower nibble: team ID
-1        u8      upper nibble: ant ID, lower nibble: ant health (1-10)
-2        u16     horizontal (X) coordinate
-4        u16     vertical (Y) coordinate
-'''
 class Entity(object):
+	""" Each Object (6 bytes) is coded as follows:
+	Offset   Type    Description
+	0        u8      upper nibble: object type (0=empty, 1=ant, 2=sugar, 3=ant+sugar), lower nibble: team ID
+	1        u8      upper nibble: ant ID, lower nibble: ant health (1-10)
+	2        u16     horizontal (X) coordinate
+	4        u16     vertical (Y) coordinate
+	"""
 
 	FMT_STR = '<BBHH'
 
@@ -144,7 +146,8 @@ class Entity(object):
 		self.world = world
 		self.x = self.y = -1
 		self.isant = self.issugar = False
-		self.tid = self.antid = self.anthealth = -1
+		self.tid = self.antid = self.anthealth = -1  # ant only
+		#self.focus = self.dir = None  # ant KI only
 
 	def unpack(self, objstr): ## client & visu
 		objinfo, antinfo, self.x, self.y = struct.unpack(Entity.FMT_STR, objstr)
@@ -161,24 +164,26 @@ class Entity(object):
 		                   self.antid << 4 + self.anthealth,
 		                   self.x, self.y)
 
-	def __str__(self):
-		return str(self.x)+'x'+str(self.y)+' '+str(self.tid)+' '+str(self.antid)
 
+	### methods only to be used from the client
 
-	'''
-		methods only to be used from the client
-	'''
-
-	def set_focus(self, x, y):
+	def set_focus(self, foc): # only use from client
 		''' specify a position and we will try to get there '''
-		self.focus = (x,y)
-		self.dir = Direction.NONE
+		print 'setting focus to', foc
+		self.focus = foc
+		print 'set focus to', self.focus
+		#self.dir = Direction.NONE
 
-	def move2focus(self):
-		if dist_steps((self.x,self.y), self.focus) < 1:
-			return
+	def dir2focus(self): # only use from client
+		print 'i am', str(self), 'and my focus is', self.focus
 		self.dir = which_way((self.x, self.y), self.focus)
 
+	def __str__(self):
+		if self.isant:
+			print(self.focus)
+			return 'A{}[{}×{};{}.{}]'.format(('+S' if self.issugar else ''), self.x, self.y, self.tid, self.antid)
+		else:
+			return 'S[{}×{}]'.format(self.x, self.y)
 
 
 def enum(**enums):
