@@ -23,6 +23,7 @@ def main():
 		client.update_world()
 		client.futtersuche_go()
 		client.send_actions()
+		client.send_action([1] * 16)
 		vis.update()
 
 

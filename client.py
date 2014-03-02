@@ -14,6 +14,13 @@ def myrecv(s, size): ## guttenberged from joe
 	return data
 
 
+#_action = Struct("16B")
+#_hello = Struct("H16s")
+#_team = Struct("HH16s")
+#_object = Struct("BBHH")
+#_turn = Struct("h")
+#_word = Struct("H")
+
 class AntClient:
 
 	def __init__(self, hostname, client=True, teamname='gAntZ'):
@@ -26,37 +33,33 @@ class AntClient:
 		if len(teamname) < 16:
 			teamname = teamname + ' '*(16-len(teamname))
 
-		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.socket.connect((hostname, PORT))
-		self.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, True) ## joe ^^
+		self.sock.connect((hostname, PORT))
+		self.sock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
-		self.socket.send(struct.pack('<H16s', int(client), teamname))
+		self.sock.send(struct.pack('<H16s', int(client), teamname))
 
-		# receive first world
-		self.update_world()
-
-	def update_world(self):
-		'''
-		parse turn packet
-		'''
-		self.tID = struct.unpack('<H', myrecv(self.socket, 2))
+		self.update_world() ## receive first world
 		print 'received tid %s' % self.tID
 
+	def update_world(self):
+		''' parse turn packet '''
+		self.tID = struct.unpack('<H', myrecv(self.sock, 2))
+
 		self.world.teams = []
-		print 'scores: ',
 		for tid in range(0,16):
 			newteam = Team(tid)
-			newteam.unpack(myrecv(self.socket, 20)) ## deserialize team
-			print str(newteam.sugar)+' ',
+			newteam.unpack(myrecv(self.sock, 20)) ## deserialize team
 			self.world.teams.append(newteam)
 
-		num_of_objects, = struct.unpack('<H', myrecv(self.socket, 2))
+		num_of_objects, = struct.unpack('<H', myrecv(self.sock, 2))
 		print 'objects:%s' % num_of_objects,
 
 		self.world.entities = []
 		for _ in range(num_of_objects):
 			newobj = Entity(self.world)
-			newobj.unpack(myrecv(self.socket, 6)) ## deserialize object
+			newobj.unpack(myrecv(self.sock, 6)) ## deserialize object
 			self.world.entities.append(newobj)
 		print 'ants:%d' % len(filter(lambda e: e.isant and not e.issugar, self.world.entities)),
 		print 'sugars:%d' % len(filter(lambda e: not e.isant and e.issugar, self.world.entities)),
@@ -83,20 +86,16 @@ class AntClient:
 			s = self.find_nearest_sugar(a)
 			a.set_focus(s.x, s.y)
 
-
 	def futtersuche_go(self):
 		for a in self.world.get_ants_for_team(self.tID):
 			a.move2focus()
 
-
 	def send_actions(self):
-		'''
-		The 'action' message:
-		Offset   Type      Description
-		0        u8        action for ant 0: id of field to move to: 123
-		                                                             456
-		...                                                          789
-		15       u8        action for ant 15
+		''' The 'action' message:
+		Offset   Type      Description                                            directions
+		0        u8        action for ant 0:                                         123
+		...                                                                        ← 456 →
+		15       u8        action for ant 15                                         789
 		'''
 		my_ants = self.world.get_ants_for_team(self.tID)
 
@@ -107,8 +106,15 @@ class AntClient:
 			else:
 				dir = Direction.NONE
 			msg = struct.pack('<B', dir)
-			print('sending dir %s' % str(msg))
-			self.socket.send(msg)
+			print('send dir %s' % str(msg)),
+			self.sock.send(msg)
+
+
+	def send_action(self, actions):
+		assert len(actions) == 16
+		for a in actions:
+			self.sock.send(struct.pack('<16B', *actions))
+
 
 
 if __name__ == '__main__':
