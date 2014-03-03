@@ -20,9 +20,10 @@ class AI(object):
 			self.y = entity.y if entity else -1
 			self.hp = entity.anthealth if entity else -1
 
-		def move2focus(self, foc):
-			''' specify a position and we will try to get there '''
+		def set_focus(self, foc):
 			self.focus = foc
+
+		def move2focus(self):
 			self.dir = which_way((self.x, self.y), self.focus)
 
 	def __init__(self, client):
@@ -57,7 +58,8 @@ class AI(object):
 		print 'client ID {} has {} ants'.format(self.id, len(myants))
 		for a in self.ants:
 			s = self.find_nearest_sugar(a)
-			a.move2focus((s.x, s.y))
+			a.set_focus((s.x, s.y))
+			a.move2focus()
 
 	def calc_actions(self):
 		return map(lambda a: a.dir, self.ants)

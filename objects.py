@@ -170,6 +170,6 @@ def which_way((x, y), (goalX, goalY)):
 	if x > goalX and y > goalY: return Direction.NW
 	if x < goalX: return Direction.E
 	if x > goalX: return Direction.W
-	if y < goalY: return Direction.N
-	if y > goalY: return Direction.S
+	if y < goalY: return Direction.S
+	if y > goalY: return Direction.N
 	return Direction.NONE

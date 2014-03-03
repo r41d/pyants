@@ -72,8 +72,8 @@ class AntClient:
 		#print 'INVALID:%d' % len(filter(lambda e: not e.isant and not e.issugar, self.world.entities))
 
 	def send_actions(self, actions):
+		''' send actions '''
 		assert len(actions) == 16
-		#for a in actions:
 		self.sock.send(struct.pack('<16B', *actions))
 
 
