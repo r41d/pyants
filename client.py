@@ -8,7 +8,8 @@ from objects import World, Team, Entity
 
 PORT = 5000
 
-def myrecv(s, size): ## guttenberged from joe
+
+def myrecv(s, size):  # guttenberged from joe
 	data = ''
 	while len(data) < size:
 		data += s.recv(size - len(data))
@@ -35,7 +36,7 @@ class AntClient:
 			teamname = teamname + ' '*(16-len(teamname))
 
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, True) ## joe ^^
+		self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, True)  # joe ^^
 		try:
 			self.sock.connect((hostname, PORT))
 		except Exception:
@@ -45,7 +46,7 @@ class AntClient:
 
 		self.sock.send(struct.pack('<H16s', int(client), teamname))
 
-		self.update_world() ## receive first world
+		self.update_world()  # receive first world
 		print 'received tid %s' % self.tID
 
 	def update_world(self):
@@ -53,9 +54,9 @@ class AntClient:
 		self.tID, = struct.unpack('<H', myrecv(self.sock, 2))
 
 		self.world.teams = []
-		for tid in range(0,16):
+		for tid in range(16):
 			newteam = Team(tid)
-			newteam.unpack(myrecv(self.sock, 20)) ## deserialize team
+			newteam.unpack(myrecv(self.sock, 20))  # deserialize team
 			self.world.teams.append(newteam)
 
 		num_of_objects, = struct.unpack('<H', myrecv(self.sock, 2))
@@ -64,7 +65,7 @@ class AntClient:
 		self.world.entities = []
 		for _ in range(num_of_objects):
 			newobj = Entity(self.world)
-			newobj.unpack(myrecv(self.sock, 6)) ## deserialize object
+			newobj.unpack(myrecv(self.sock, 6))  # deserialize object
 			self.world.entities.append(newobj)
 		#print 'ants:%d' % len(filter(lambda e: e.isant and not e.issugar, self.world.entities)),
 		#print 'sugars:%d' % len(filter(lambda e: not e.isant and e.issugar, self.world.entities)),
@@ -72,7 +73,7 @@ class AntClient:
 		#print 'INVALID:%d' % len(filter(lambda e: not e.isant and not e.issugar, self.world.entities))
 
 	def send_actions(self, actions):
-		''' send actions '''
+		""" send actions """
 		assert len(actions) == 16
 		self.sock.send(struct.pack('<16B', *actions))
 

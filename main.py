@@ -7,12 +7,13 @@ from client import AntClient
 from vis import Vis
 from ai import AI
 
+
 def main():
 
 	if len(sys.argv) < 2:
 		sys.exit(1)
 
-	client = AntClient(sys.argv[1], True)  ## here happens the network stuff in the AntClient ctor
+	client = AntClient(sys.argv[1], True)  # here happens the network stuff in the AntClient ctor
 
 	vis = Vis(client)
 	ai = AI(client)

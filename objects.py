@@ -34,7 +34,7 @@ class World(object):
 				return c
 		return -1
 
-	def __new__(cls, *args, **kwargs): ## singleton
+	def __new__(cls, *args, **kwargs):  # singleton
 		if not cls.__instance:
 			cls.__instance = super(World, cls).__new__(cls, *args, **kwargs)
 		return cls.__instance
@@ -117,7 +117,7 @@ class Entity(object):
 		self.isant = self.issugar = False
 		self.tid = self.antid = self.anthealth = -1  # ant only
 
-	def unpack(self, objstr): ## client & visu
+	def unpack(self, objstr):  # client & visu
 		objinfo, antinfo, self.x, self.y = struct.unpack(Entity.FMT_STR, objstr)
 		entitytype = objinfo >> 4
 		self.isant = bool(entitytype % 2)
@@ -126,7 +126,7 @@ class Entity(object):
 		self.antid = antinfo >> 4 if self.isant else -1
 		self.anthealth = antinfo % (2 ** 4) if self.isant else -1
 
-	def pack(self): ## would be user by server
+	def pack(self):  # would be user by server
 		return struct.pack(Entity.FMT_STR,
 		                   int(self.isant) + int(self.issugar<<1) << 4 + self.tid,
 		                   self.antid << 4 + self.anthealth,
@@ -134,7 +134,6 @@ class Entity(object):
 
 	def __str__(self):
 		if self.isant:
-			print(self.focus)
 			return 'A{}[{}×{};{}.{}]'.format(('+S' if self.issugar else ''), self.x, self.y, self.tid, self.antid)
 		else:
 			return 'S[{}×{}]'.format(self.x, self.y)

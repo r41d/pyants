@@ -3,6 +3,7 @@
 
 from enum import Enum
 
+
 class Direction(Enum):
 	NONE = 5
 	NW = 1
@@ -14,8 +15,10 @@ class Direction(Enum):
 	SW = 7
 	W = 4
 
+
 def dist_steps((x1, y1), (x2, y2)):
 	return max(abs(x1 - x2), abs(y1 - y2))
+
 
 def which_way((x, y), (goalX, goalY)):
 	if x < goalX and y < goalY: return Direction.SE
@@ -28,13 +31,14 @@ def which_way((x, y), (goalX, goalY)):
 	if y > goalY: return Direction.N
 	return Direction.NONE
 
+
 class AI(object):
 
 	class Ant(object):
 		def __init__(self, entity=None):  # Ant ctor gets passed an entity with teamID == clientID
 			self.id = self.x = self.y = self.hp = -1
 			self.from_entity(entity)
-			self.focus = (500,500)
+			self.focus = (500, 500)
 			self.dir = Direction.NONE
 
 		def from_entity(self, entity):
@@ -42,6 +46,10 @@ class AI(object):
 			self.x = entity.x if entity else -1
 			self.y = entity.y if entity else -1
 			self.hp = entity.anthealth if entity else -1
+
+		def isalive(self):
+			return self.hp > 0
+		alive = property(isalive)
 
 		def set_focus(self, foc):
 			self.focus = foc
@@ -74,7 +82,7 @@ class AI(object):
 				minSugar = s
 				minSteps = steps
 
-		return minSugar  ## None if no sugar in world
+		return minSugar  # None if no sugar in world
 
 	def futtersuche(self):
 		myants = self.get_my_ants()

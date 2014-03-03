@@ -6,7 +6,7 @@ import string
 from enum import Enum
 import pygame
 from client import AntClient
-from objects import World, Team, Entity
+from objects import World  #, Team, Entity
 
 
 class Vis(object):
@@ -65,13 +65,12 @@ class Vis(object):
 		#self.client.update_world() ### now done outside
 		world = self.client.world
 
-		e = pygame.event.poll()
 		if pygame.event.peek(pygame.QUIT):
 			sys.exit()
 		pygame.event.clear()
 
 		self.DISPLAY.fill(Vis.Colors.black)
-		self.DISPLAY.blit(self.HomeBaseSurface, (0,0))
+		self.DISPLAY.blit(self.HomeBaseSurface, (0, 0))
 
 		for e in world.entities:
 			#if e.isant:
@@ -102,7 +101,7 @@ class Vis(object):
 
 
 if __name__ == '__main__':
-	client = AntClient(sys.argv[1], False, 'spectator^^')  ## here happens the network stuff in the AntClient ctor
+	client = AntClient(sys.argv[1], False, 'spectator^^')  # here happens the network stuff in the AntClient ctor
 	vis = Vis(client)
 	while True:
 		client.update_world()
