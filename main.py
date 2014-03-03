@@ -20,15 +20,10 @@ def main():
 
 	while True:
 		client.update_world()
-
-		#print 'client tID: %d' % client.tID
-
 		vis.update()
-
 		ai.update_ants()
-		ai.futtersuche()
+		ai.perform_ai()
 		client.send_actions(ai.calc_actions())
-
 
 if __name__ == '__main__':
 	main()

@@ -20,11 +20,11 @@ class World(object):
 	WORLD_SIZE = 1000
 
 	## bases are numerated clockwise where topleft = 0
-	HOMEBASES = map(lambda (x, y): Rect(x, y, x + 20, y + 20),
-	                [(i * 200 + 90, 90) for i in range(5)]
-					+ [(890, 200 * i + 290) for i in range(4)]
-					+ [(690 - 200 * i, 890) for i in range(4)]
-					+ [(90, 690 - i * 200) for i in range(3)]
+	HOMEBASES = map(lambda (x, y): Rect(x-10, y-10, 19, 19),
+	                [(i * 200 + 100, 100) for i in range(5)]
+					+ [(900, 200 * i + 300) for i in range(4)]
+					+ [(700 - 200 * i, 900) for i in range(4)]
+					+ [(100, 700 - i * 200) for i in range(3)]
 				)
 
 	@staticmethod
