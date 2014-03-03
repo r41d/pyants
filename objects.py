@@ -2,7 +2,6 @@
 # -*- coding: utf-8 *-*
 
 import struct
-from enum import Enum
 from pygame import Rect
 
 ANT_HEALTH = 10
@@ -117,7 +116,6 @@ class Entity(object):
 		self.x = self.y = -1
 		self.isant = self.issugar = False
 		self.tid = self.antid = self.anthealth = -1  # ant only
-		#self.focus = self.dir = None  # ant KI only
 
 	def unpack(self, objstr): ## client & visu
 		objinfo, antinfo, self.x, self.y = struct.unpack(Entity.FMT_STR, objstr)
@@ -134,42 +132,9 @@ class Entity(object):
 		                   self.antid << 4 + self.anthealth,
 		                   self.x, self.y)
 
-
 	def __str__(self):
 		if self.isant:
 			print(self.focus)
 			return 'A{}[{}×{};{}.{}]'.format(('+S' if self.issugar else ''), self.x, self.y, self.tid, self.antid)
 		else:
 			return 'S[{}×{}]'.format(self.x, self.y)
-
-
-# The 'action' message:
-# Offset   Type      Description                            direct↑ons
-# 0        u8        action for ant 0:                           123
-# ...                                                          ← 456 →
-# 15       u8        action for ant 15                           789
-class Direction(Enum):
-	NONE = 5
-	NW = 1
-	N = 2
-	NE = 3
-	E = 6
-	SE = 9
-	S = 8
-	SW = 7
-	W = 4
-
-
-def dist_steps((x1, y1), (x2, y2)):
-	return max(abs(x1 - x2), abs(y1 - y2))
-
-def which_way((x, y), (goalX, goalY)):
-	if x < goalX and y < goalY: return Direction.SE
-	if x < goalX and y > goalY: return Direction.NE
-	if x > goalX and y < goalY: return Direction.SW
-	if x > goalX and y > goalY: return Direction.NW
-	if x < goalX: return Direction.E
-	if x > goalX: return Direction.W
-	if y < goalY: return Direction.S
-	if y > goalY: return Direction.N
-	return Direction.NONE

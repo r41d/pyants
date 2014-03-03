@@ -1,9 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 *-*
 
-import sys
-from client import dist_steps, which_way
-from objects import Direction
+from enum import Enum
+
+class Direction(Enum):
+	NONE = 5
+	NW = 1
+	N = 2
+	NE = 3
+	E = 6
+	SE = 9
+	S = 8
+	SW = 7
+	W = 4
+
+def dist_steps((x1, y1), (x2, y2)):
+	return max(abs(x1 - x2), abs(y1 - y2))
+
+def which_way((x, y), (goalX, goalY)):
+	if x < goalX and y < goalY: return Direction.SE
+	if x < goalX and y > goalY: return Direction.NE
+	if x > goalX and y < goalY: return Direction.SW
+	if x > goalX and y > goalY: return Direction.NW
+	if x < goalX: return Direction.E
+	if x > goalX: return Direction.W
+	if y < goalY: return Direction.S
+	if y > goalY: return Direction.N
+	return Direction.NONE
 
 class AI(object):
 

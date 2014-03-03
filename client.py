@@ -4,7 +4,7 @@
 import sys
 import socket
 import struct
-from objects import World, Team, Entity, Direction, dist_steps, which_way
+from objects import World, Team, Entity
 
 PORT = 5000
 

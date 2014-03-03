@@ -3,7 +3,7 @@
 
 import sys
 
-from client import AntClient, dist_steps, which_way
+from client import AntClient
 from vis import Vis
 from ai import AI
 
