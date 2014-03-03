@@ -5,29 +5,7 @@ import sys
 
 from client import AntClient, dist_steps, which_way
 from vis import Vis
-
-
-def get_my_ants(client):
-	return client.world.get_ants_for_team(client.tID)
-
-def find_nearest_sugar(client, ant):
-	sugars = client.world.get_sugars()
-	minSugar, minSteps  = None, 1000
-
-	for s in sugars:
-		steps = dist_steps((ant.x, ant.y), (s.x, s.y))
-		if steps < minSteps:
-			minSugar = s
-			minSteps = steps
-
-	return minSugar ## None if no sugar in world
-
-def futtersuche_focus(client):
-	myants = get_my_ants(client)
-	print 'client ID {} has {} ants'.format(client.tID, len(myants))
-	for a in myants:
-		s = find_nearest_sugar(client, a)
-		a.move2focus((s.x,s.y))
+from ai import AI
 
 def main():
 
@@ -37,18 +15,18 @@ def main():
 	client = AntClient(sys.argv[1], True)  ## here happens the network stuff in the AntClient ctor
 
 	vis = Vis(client)
-	client.update_world()
+	ai = AI(client)
 
 	while True:
 		client.update_world()
 
-		### some introspection
-		clientTID = client.tID
-		print 'client tID: %d' % clientTID
+		#print 'client tID: %d' % client.tID
 
-		futtersuche_focus(client)
-		client.move2focuses() # move SE when no focuses set
 		vis.update()
+
+		ai.update_ants()
+		ai.futtersuche()
+		client.send_actions(ai.calc_actions())
 
 
 if __name__ == '__main__':

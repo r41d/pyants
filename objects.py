@@ -59,39 +59,8 @@ class World(object):
 	def get_team_ant(self, teamid, antid):
 		return filter(lambda e: e.isant and e.tid == teamid and e.antid == antid, self.entities)
 
-
 	def search_pos(self, x, y):
 		return filter(lambda e: e.x == x and e.y == y, self.entities)
-
-	def login(self, loginstr):
-		""" Format of the 'hello' packet:
-		Offset   Type      Description
-		0        u16       client type (0=non-team, 1=team)
-		2        16 chars  team name (if team client, else ignored) """
-		isplayer, teamname = struct.unpack('<H16s', loginstr)
-		if bool(isplayer):
-			newteam = Team(World.nextid, teamname)
-			self.teams += newteam
-			for _ in range(INITIAL_ANTS_PER_TEAM):
-				self.register_ant(newteam)
-
-	def register_ant(self, team, xy=(-1,-1)):
-		#assert x>0 and y>0 and x < WORLD_SIZE and y < WORLD_SIZE
-		newant = Entity(self)
-		newant.isant = True
-		newant.tid = team.id
-		newant.antid = team.nextantid()
-		newant.anthealth = ANT_HEALTH
-
-		newant.world = self
-		self.ants.append(newant)
-
-	def place_sugar(self, random=True, x=-1, y=-1):
-		if random or x not in range(0, World.WORLD_SIZE) or y not in range(0, World.WORLD_SIZE):
-			x = random.randint(0, World.WORLD_SIZE)
-			y = random.randint(0, World.WORLD_SIZE)
-		self.sugars[x][y] += 1
-
 
 
 '''
@@ -166,13 +135,6 @@ class Entity(object):
 		                   self.x, self.y)
 
 
-	### methods only to be used from the client
-
-	def move2focus(self, foc): # only use from client
-		''' specify a position and we will try to get there '''
-		self.focus = foc
-		self.dir = which_way((self.x, self.y), self.focus)
-
 	def __str__(self):
 		if self.isant:
 			print(self.focus)
@@ -181,6 +143,11 @@ class Entity(object):
 			return 'S[{}×{}]'.format(self.x, self.y)
 
 
+# The 'action' message:
+# Offset   Type      Description                            direct↑ons
+# 0        u8        action for ant 0:                           123
+# ...                                                          ← 456 →
+# 15       u8        action for ant 15                           789
 class Direction(Enum):
 	NONE = 5
 	NW = 1
@@ -193,22 +160,8 @@ class Direction(Enum):
 	W = 4
 
 
-def dist_steps((x1,y1), (x2,y2)):
-	xB = max(x1,x2)
-	xS = min(x1,x2)
-	yB = max(y1,y2)
-	yS = min(y1,y2)
-	steps = 0
-	while xS < xB and yS < yB:
-		xS, yS = xS+1, yS+1
-		steps += 1
-	while xS < xB:
-		xS += 1
-		steps += 1
-	while yS < yB:
-		yS += 1
-		steps += 1
-	return steps
+def dist_steps((x1, y1), (x2, y2)):
+	return max(abs(x1 - x2), abs(y1 - y2))
 
 def which_way((x, y), (goalX, goalY)):
 	if x < goalX and y < goalY: return Direction.SE

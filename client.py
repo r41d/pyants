@@ -71,29 +71,10 @@ class AntClient:
 		#print 'ants+sugar:%d' % len(filter(lambda e: e.isant and e.issugar, self.world.entities)),
 		#print 'INVALID:%d' % len(filter(lambda e: not e.isant and not e.issugar, self.world.entities))
 
-	def move2focuses(self):
-		''' The 'action' message:
-		Offset   Type      Description                                          direct↑ons
-		0        u8        action for ant 0:                                         123
-		...                                                                        ← 456 →
-		15       u8        action for ant 15                                         789
-		'''
-
-		acts = []
-		for i in range(16):
-			search = self.world.get_team_ant(self.tID, i)
-			if search:
-				dir = search[0].dir
-			else:
-				dir = Direction.SE ## →↓
-			acts.append(dir)
-
-		self.send_action(acts)
-
-	def send_action(self, actions):
+	def send_actions(self, actions):
 		assert len(actions) == 16
-		for a in actions:
-			self.sock.send(struct.pack('<16B', *actions))
+		#for a in actions:
+		self.sock.send(struct.pack('<16B', *actions))
 
 
 if __name__ == '__main__':
