@@ -151,7 +151,7 @@ class AI(object):
 		for a in [a for a in self.ants if not a.decided and a.hassugar]:
 			print inspect.stack()[0][3]
 			if a.hassugar:
-				base_bottom_left = self.world.HOMEBASES[self.id].bottomleft  # lauf ma nach unten links in der base
+				base_bottom_left = self.world.HOMEBASES[self.id].center  # lauf mal in die mitte
 				print('i think my base is at', base_bottom_left)
 				a.move_toward_pos(base_bottom_left)
 			a.decided = True

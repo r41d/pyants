@@ -20,7 +20,8 @@ class World(object):
 	WORLD_SIZE = 1000
 
 	## bases are numerated clockwise where topleft = 0
-	HOMEBASES = map(lambda (x, y): Rect(x-10, y-10, 19, 19),
+	## IMPORTANT: right and bottom boundary arent considered to be a part of the rectangle!!
+	HOMEBASES = map(lambda (x, y): Rect(x-10, y-10, 20, 20),
 	                [(i * 200 + 100, 100) for i in range(5)]
 					+ [(900, 200 * i + 300) for i in range(4)]
 					+ [(700 - 200 * i, 900) for i in range(4)]
