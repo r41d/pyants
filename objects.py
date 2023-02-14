@@ -27,7 +27,6 @@ class World(object):
 					+ [(700 - 200 * i, 900) for i in range(4)]
 					+ [(100, 700 - i * 200) for i in range(3)]
 				)
-
 	@staticmethod
 	def is_base(x, y):
 		for (c, base) in zip(range(len(World.HOMEBASES)), World.HOMEBASES):
