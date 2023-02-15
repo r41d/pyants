@@ -17,11 +17,15 @@ class Direction(Enum):
 	W = 4
 
 
-def dist_steps((x1, y1), (x2, y2)):
+def dist_steps(pos1, pos2):
+	(x1, y1) = pos1
+	(x2, y2) = pos2
 	return max(abs(x1 - x2), abs(y1 - y2))
 
 
-def which_way((x, y), (goalX, goalY)):
+def which_way(pos, goal):
+	(x, y) = pos
+	(goalX, goalY) = goal
 	if x < goalX and y < goalY: return Direction.SE
 	if x < goalX and y > goalY: return Direction.NE
 	if x > goalX and y < goalY: return Direction.SW
@@ -90,7 +94,7 @@ class AI(object):
 		own_ants = self.world.get_ants_for_team(self.id)
 		#print(map(str, own_ants))
 		for i in range(16):
-			ant = filter(lambda e: e.antid == i, own_ants)
+			ant = [e for e in own_ants if e.antid == i]
 			#print(map(str, ant))
 			assert len(ant) < 2
 			self.ants[i].from_entity(ant[0] if len(ant) > 0 else None)
@@ -135,21 +139,21 @@ class AI(object):
 		for a in [a for a in self.ants if not a.decided]:
 			(enemy, steps) = self.find_nearest_enemy(a)
 			if steps < 5:
-				print inspect.stack()[0][3]
+				print(inspect.stack()[0][3])
 				a.dir = turnaround(which_way((a.x, a.y), (enemy.x, enemy.y)))
 				a.decided = True
 
 
 	def go_home_when_wounded(self):
 		for a in [a for a in self.ants if not a.decided and a.hp < 5]:
-			print inspect.stack()[0][3]
+			print(inspect.stack()[0][3])
 			a.move_toward_pos(self.world.HOMEBASES[self.id].center)
 			a.decided = True
 
 
 	def bring_sugar_home(self):
 		for a in [a for a in self.ants if not a.decided and a.hassugar]:
-			print inspect.stack()[0][3]
+			print(inspect.stack()[0][3])
 			if a.hassugar:
 				base_bottom_left = self.world.HOMEBASES[self.id].center  # lauf mal in die mitte
 				print('i think my base is at', base_bottom_left)
@@ -159,14 +163,14 @@ class AI(object):
 
 	def is_in_base(self):
 		for a in [a for a in self.ants if not a.decided and self.world.HOMEBASES[self.id].collidepoint(a.x,a.y)]:
-			print inspect.stack()[0][3]
+			print(inspect.stack()[0][3])
 			a.dir = Direction.NE
 			a.decided = True
 
 
 	def search_sugar(self):
 		for a in [a for a in self.ants if not a.decided and not a.hassugar]:
-			print inspect.stack()[0][3]
+			print(inspect.stack()[0][3])
 			(s, _) = self.find_nearest_sugar(a)
 			if s:
 				a.move_toward_pos((s.x, s.y))
@@ -179,7 +183,7 @@ class AI(object):
 			89AB		W★E
 			CDEF		 S      """
 		for a in [a for a in self.ants if not a.decided]:
-			print inspect.stack()[0][3]
+			print(inspect.stack()[0][3])
 			if a.id in [0xA, 0xF]: a.dir = Direction.SE
 			if a.id in [  3,   7]: a.dir = Direction.NE
 			if a.id in [0xC,   9]: a.dir = Direction.SW
@@ -192,7 +196,7 @@ class AI(object):
 
 	def move2middle(self):
 		for a in [a for a in self.ants if not a.decided]:
-			print inspect.stack()[0][3]
+			print(inspect.stack()[0][3])
 			a.move_toward_pos((500, 500))
 			# don't change a.decided
 
@@ -201,4 +205,4 @@ class AI(object):
 
 	## not really AI, used to 'export' actions the ants want to perform
 	def calc_actions(self):
-		return map(lambda a: a.dir, self.ants)
+		return [a.dir for a in self.ants]

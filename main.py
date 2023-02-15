@@ -13,7 +13,7 @@ VIS = False
 def main():
 
 	if len(sys.argv) < 2:
-		print "need IP as first argument"
+		print("need IP as first argument")
 		sys.exit(1)
 
 	client = AntClient(sys.argv[1], True)  # here happens the network stuff in the AntClient ctor

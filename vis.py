@@ -44,7 +44,7 @@ class Vis(object):
 
 	def __init__(self, client):
 		if len(sys.argv) < 2:
-			print 'Usage: ' + sys.argv[0] + ' host'
+			print('Usage: ' + sys.argv[0] + ' host')
 			exit(1)
 
 		pygame.init()
@@ -53,7 +53,7 @@ class Vis(object):
 		pygame.display.set_caption('Ant!')
 		self.DISPLAY = pygame.display.set_mode(self.size)
 		self.HomeBaseSurface = pygame.Surface((1001,1000))
-		for (c, b) in zip(xrange(16), World.HOMEBASES):
+		for (c, b) in zip(range(16), World.HOMEBASES):
 			pygame.draw.rect(self.HomeBaseSurface, self.teamColors[c], (b.x, b.y, 20, 20))
 		pygame.draw.line(self.HomeBaseSurface, self.Colors.white, (1000, 0), (1000, 999))
 
@@ -93,7 +93,7 @@ class Vis(object):
 		for t in world.teams:
 			#print t.id, t.name
 			self.draw_text(self.DISPLAY,
-			          filter(lambda c: c in string.printable, str('{:>2}   {:>2} {:>5} {}'.format(t.id, t.ants, t.sugar, t.name))),
+			          [c for c in str('{:>2}   {:>2} {:>5} {}'.format(t.id, t.ants, t.sugar, t.name)) if c in string.printable],
 			          self.font, (1020, 80 + t.id * 20), Vis.teamColors[t.id])
 
 		self.TIMER.tick(self.FPS)

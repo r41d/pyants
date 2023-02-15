@@ -21,15 +21,13 @@ class World(object):
 
 	## bases are numerated clockwise where topleft = 0
 	## IMPORTANT: right and bottom boundary arent considered to be a part of the rectangle!!
-	HOMEBASES = map(lambda (x, y): Rect(x-10, y-10, 20, 20),
-	                [(i * 200 + 100, 100) for i in range(5)]
+	HOMEBASES = [Rect(x_y[0]-10, x_y[1]-10, 20, 20) for x_y in [(i * 200 + 100, 100) for i in range(5)]
 					+ [(900, 200 * i + 300) for i in range(4)]
 					+ [(700 - 200 * i, 900) for i in range(4)]
-					+ [(100, 700 - i * 200) for i in range(3)]
-				)
+					+ [(100, 700 - i * 200) for i in range(3)]]
 	@staticmethod
 	def is_base(x, y):
-		for (c, base) in zip(range(len(World.HOMEBASES)), World.HOMEBASES):
+		for (c, base) in zip(list(range(len(World.HOMEBASES))), World.HOMEBASES):
 			if base.collidepoint(x, y):
 				return c
 		return -1
@@ -47,19 +45,19 @@ class World(object):
 		self.entities = []
 
 	def get_ants(self):
-		return filter(lambda e: e.isant, self.entities)
+		return [e for e in self.entities if e.isant]
 
 	def get_sugars(self):
-		return filter(lambda e: e.issugar and not e.isant, self.entities)
+		return [e for e in self.entities if e.issugar and not e.isant]
 
 	def get_ants_for_team(self, teamid):
-		return filter(lambda e: e.isant and e.tid == teamid, self.entities)
+		return [e for e in self.entities if e.isant and e.tid == teamid]
 
 	def get_team_ant(self, teamid, antid):
-		return filter(lambda e: e.isant and e.tid == teamid and e.antid == antid, self.entities)
+		return [e for e in self.entities if e.isant and e.tid == teamid and e.antid == antid]
 
 	def search_pos(self, x, y):
-		return filter(lambda e: e.x == x and e.y == y, self.entities)
+		return [e for e in self.entities if e.x == x and e.y == y]
 
 
 '''
@@ -86,7 +84,7 @@ class Team(object):
 	def getid(self):
 		return self.__id
 	def setid(self, id):
-		if id in xrange(0, 16):
+		if id in range(0, 16):
 			self.__id = id
 	id = property(getid, setid)
 

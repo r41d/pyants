@@ -10,7 +10,7 @@ PORT = 5000
 
 
 def myrecv(s, size):  # guttenberged from joe
-	data = ''
+	data = bytearray()
 	while len(data) < size:
 		data += s.recv(size - len(data))
 	return data
@@ -40,14 +40,14 @@ class AntClient:
 		try:
 			self.sock.connect((hostname, PORT))
 		except Exception:
-			print 'cannot connect'
+			print('cannot connect')
 			sys.exit(1)
 		self.sock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
-		self.sock.send(struct.pack('<H16s', int(client), teamname))
+		self.sock.send(struct.pack('<H16s', int(client), teamname.encode('ascii')))
 
 		self.update_world()  # receive first world
-		print 'received tid %s' % self.tID
+		print('received tid %s' % self.tID)
 
 	def update_world(self):
 		''' parse turn packet '''
