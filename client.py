@@ -75,7 +75,7 @@ class AntClient:
 	def send_actions(self, actions):
 		""" send actions """
 		assert len(actions) == 16
-		self.sock.send(struct.pack('<16B', *actions))
+		self.sock.send(struct.pack('16B', *actions))
 
 
 if __name__ == '__main__':

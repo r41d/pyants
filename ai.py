@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 *-*
 
-from enum import Enum
+import enum
 import inspect
 
 
-class Direction(Enum):
+class Direction(enum.IntEnum):
 	NONE = 5
 	NW = 1
 	N = 2
