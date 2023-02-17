@@ -55,7 +55,7 @@ class Vis(object):
 		self.HomeBaseSurface = pygame.Surface((1001,1000))
 		for (c, b) in zip(range(16), World.HOMEBASES):
 			pygame.draw.rect(self.HomeBaseSurface, self.teamColors[c], (b.x, b.y, 20, 20))
-		pygame.draw.line(self.HomeBaseSurface, self.Colors.white, (1000, 0), (1000, 999))
+		pygame.draw.line(self.HomeBaseSurface, self.Colors.white.value, (1000, 0), (1000, 999))
 
 		self.TIMER = pygame.time.Clock()
 
@@ -69,7 +69,7 @@ class Vis(object):
 			sys.exit()
 		pygame.event.clear()
 
-		self.DISPLAY.fill(Vis.Colors.black)
+		self.DISPLAY.fill(Vis.Colors.black.value)
 		self.DISPLAY.blit(self.HomeBaseSurface, (0, 0))
 
 		for e in world.entities:
@@ -81,7 +81,7 @@ class Vis(object):
 				self.draw_cross(self.DISPLAY, e.x, e.y, Vis.teamColors[e.tid], False, 5)
 			elif not e.isant and e.issugar:
 				#draw_cross(DISPLAY, e.x, e.y, white, True, 2)
-				self.DISPLAY.set_at((e.x, e.y), Vis.Colors.white)
+				self.DISPLAY.set_at((e.x, e.y), Vis.Colors.white.value)
 			elif e.isant and e.issugar:
 				self.draw_cross(self.DISPLAY, e.x, e.y, Vis.teamColors[e.tid], True, 4)
 			else:
@@ -89,11 +89,11 @@ class Vis(object):
 				pass
 			#DISPLAY.set_at((e.x, e.y), color)
 
-		self.draw_text(self.DISPLAY, 'ID Ants Score Name', self.font, (1020, 50), Vis.Colors.white)
+		self.draw_text(self.DISPLAY, 'ID Ants Score Name', self.font, (1020, 50), Vis.Colors.white.value)
 		for t in world.teams:
-			#print t.id, t.name
+			name = ''.join([chr(c) for c in t.name if chr(c) in string.printable])
 			self.draw_text(self.DISPLAY,
-			          [c for c in str('{:>2}   {:>2} {:>5} {}'.format(t.id, t.ants, t.sugar, t.name)) if c in string.printable],
+			          '{:>2}   {:>2} {:>5} {}'.format(t.id, t.ants, t.sugar, name),
 			          self.font, (1020, 80 + t.id * 20), Vis.teamColors[t.id])
 
 		self.TIMER.tick(self.FPS)
